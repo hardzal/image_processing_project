@@ -1,31 +1,476 @@
 <!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		<meta http-equiv="X-UA-Compatible" content="ie=edge">
-		<title>Image Processing</title>
-		<link rel="stylesheet" href="../assets/css/bootstrap.min.css" type="text/css"/>
-		<link rel="stylesheet" href="./css/style.css" type="text/css"/>
-	</head>
+<html>
 
-	<body>
-		<div class="container">
-			<div class="header">
-				<h1>Image Processing Project with CamanJS</h1>
+<head>
+	<title>Image Processing</title>
+	<style type="text/css">
+		body {
+			margin: 0;
+			padding: 0;
+		}
+
+		.container {
+			max-width: 80%;
+			margin: 0 auto;
+			overflow: hidden;
+			border: 1px solid #ddd;
+		}
+
+		.image-before,
+		.image-after {
+			float: left;
+			margin: 0 30px;
+			text-align: center;
+		}
+
+		.btn-effect {
+			margin-bottom: 15px;
+		}
+
+		.image-preview {
+			position: relative;
+			left: 70px;
+		}
+
+		.header {
+			position: relative;
+			text-align: center;
+			font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+			background-color: #e74c3c;
+			color: #ecf0f1;
+		}
+
+		.header h1 {
+			margin: 0;
+			padding: 0;
+		}
+
+
+		.canvas-box {
+			background: #ececec;
+			width: 600px;
+			max-width: 100%;
+		}
+
+		.button-process {
+			text-align: center;
+			clear: both;
+		}
+
+		button {
+			margin: 10px;
+		}
+
+		canvas {
+			border: solid 1px #999;
+			background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 8 8"%3E%3Cg fill="%239C92AC" fill-opacity="0.4"%3E%3Cpath fill-rule="evenodd" d="M0 0h4v4H0V0zm4 4h4v4H4V4z"/%3E%3C/g%3E%3C/svg%3E');
+		}
+
+		.red {
+			color: red;
+		}
+
+		.todo {
+			border: dashed 1px red;
+		}
+
+		p {
+			margin: 5px 0 3px;
+		}
+
+		.card {
+			margin: 15px 5px;
+		}
+
+		input[type="range"] {
+			vertical-align: middle;
+		}
+
+		footer {
+			text-align: center;
+			font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+			background-color: #e74c3c;
+			color: #ecf0f1;
+			padding: 10px;
+			margin-top: 20px;
+		}
+	</style>
+	<!-- Either include the full CamanJS code including plugins -->
+	<script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/camanjs/4.1.2/caman.full.min.js"></script>
+
+</head>
+
+<body>
+	<!-- Start Container -->
+	<div class="container">
+		<div class="header">
+			<h1>Pengolahan Citra with CamanJS</h1>
+		</div>
+		<div class="image-preview">
+			<!-- Start Image Before -->
+			<div class="image-before">
+				<h3>Image Before</h3>
+				<canvas class="canvas-box" id="canvas-image-before"></canvas>
+				<br>
+				<label for="upload-file">Upload a Picture</label>
+				<input type="file" id="upload-file" placeholder="Upload a Picture" />
 			</div>
-			<div class="body">
-				
+			<!-- End Image Before -->
+
+			<!-- Start Image After -->
+			<div class="image-after">
+				<h3>Image After</h3>
+				<canvas class="canvas-box" id="canvas-image-after"></canvas><br />
+				<button id="download-btn">Download Image</button>
 			</div>
-			<div class="footer">
-				<p>Copyright &copy;2019</p>
+			<!-- End Image After -->
+		</div>
+		<!-- Start Button Process -->
+		<div class="button-process">
+			<div class="btn-effect">
+				<button id="reset-btn">Reset Image</button>
+				<button id="invert-btn">Negative</button>
+				<button id="greyscale-btn">Greyscale</button>
+				<button id="threshold-btn">Threshold</button>
+				<input type="range" id="value-threshold" name="value-threshold" value="0" min="0" max="255" />
+				<button id="rotate-cw-90-btn">Rotate 90&deg;</button>
+				<button id="rotate-ccw-90-btn">Rotate -90&deg;</button>
+			</div>
+			<div class="range-effect">
+				<label for="brightness">Brightness</label>
+				<input id="brightness" name="brightness" type="range" min="-100" max="100" value="0">
+				<label id="value-brightness">0</label>
+
+				<label for="contrast">Contrast</label>
+				<input id="contrast" name="contrast" type="range" min="-100" max="100" value="0">
+				<label id="value-contrast">0</label>
+
+				<label for="blur">Blur</label>
+				<input id="blur" name="blur" type="range" min="0" max="100" value="0">
+				<label id="value-blur">0</label>
+
+				<label for="sharpen">Sharpen</label>
+				<input id="sharpen" name="sharpen" type="range" min="0" max="100" value="0">
+				<label id="value-sharpen">0</label>
+			</div>
+
+			<div class="row">
+				<div class="card">
+					<p>Histogram</p>
+					<div>
+						<label>
+							<input name="rType" id="typeValue" type="radio" checked /> Value
+						</label>
+						&nbsp;
+						<label>
+							<input name="rType" type="radio" /> Color
+						</label>
+					</div>
+					<canvas id="canvasHistogram" width="256" height="150"></canvas>
+				</div>
 			</div>
 		</div>
+		<!-- End Button Process -->
+		<footer>
+			<p><strong>Sakti Wicaksono (123170031)</strong> | <strong>Muhammad Rizal (123170036)</strong> | <strong>Muhammad Ravi Habibillah (123170039)</strong></p>
+		</footer>
+	</div>
+	<!-- End Container -->
+</body>
+<script>
+	// Var Image
+	var img = new Image();
+	var canvas_before = document.getElementById('canvas-image-before');
+	var canvas_after = document.getElementById('canvas-image-after');
+	var ctx_before = canvas_before.getContext('2d');
+	var ctx_after = canvas_after.getContext('2d');
+	var fileName = '';
 
-        <!--script src="../assets/js/bootstrap.min.js" type="text/javascript"></script>-->
-        <script src="../assets/js/jquery-3.4.1.min.js" type="text/javascript"></script>
-		<script src="../assets/js/popper.min.js" type="text/javascript"></script>
-		<script src="../assets/js/caman.full.min.js" type="text/javascript"></script>
-		<script src="./js/script.js" type="text/javascript"></script>
-	</body>
+	$(document).ready(function() {
+		// Upload file
+		$('#upload-file').on('change', function() {
+			var file = document.querySelector('#upload-file').files[0];
+			var reader = new FileReader();
+
+			if (file) {
+				fileName = file.name;
+				reader.readAsDataURL(file);
+			}
+
+			// Put image on canvas before and after
+			reader.addEventListener('load', function() {
+				img = new Image();
+				img.src = reader.result;
+				img.onload = function() {
+					//canvas before
+					canvas_before.width = img.width;
+					canvas_before.height = img.height;
+					ctx_before.drawImage(img, 0, 0, img.width, img.height);
+
+					//canvas after
+					canvas_after.width = img.width;
+					canvas_after.height = img.height;
+					ctx_after.drawImage(img, 0, 0, img.width, img.height);
+
+					$("#canvas-image-after").removeAttr("data-caman-id");
+				};
+			});
+		});
+
+		$("#download-btn").on("click", function(e) {
+			var fileExtension = fileName.slice(-4);
+			if (fileExtension == ".jpg" || fileExtension == ".png") {
+				var actualName = fileName.substring(0, fileName.length - 4);
+			}
+			download(canvas_after, actualName + "-edited.jpg");
+		});
+
+		//Reset Processing
+		$('#reset-btn').on('click', function(e) {
+			$('input[type=range]').val(0);
+			$('input[type=number]').val(0);
+			document.getElementById('value-contrast').innerHTML = 0;
+			document.getElementById('value-brightness').innerHTML = 0;
+			document.getElementById('value-blur').innerHTML = 0;
+			document.getElementById('value-sharpen').innerHTML = 0;
+			Caman('#canvas-image-after', function() {
+				this.revert(false);
+				this.render();
+			});
+		});
+
+		//Negative Processing
+		$('#invert-btn').on('click', function(e) {
+			Caman('#canvas-image-after', function() {
+				this.revert(false);
+				this.invert().render();
+			});
+		});
+
+		//Grayscale Processing
+		$('#greyscale-btn').on('click', function(e) {
+			Caman('#canvas-image-after', function() {
+				this.revert(false);
+				this.greyscale().render();
+			});
+		});
+
+		//Threshold Processing
+		$('#threshold-btn').on('click', function(e) {
+			var threshold_value = $('#value-threshold').val();
+			Caman('#canvas-image-after', function() {
+				this.revert(false);
+				this.threshold(threshold_value).render();
+			});
+		});
+
+		//Rotate Clockwise 90 Processing
+		$('#rotate-cw-90-btn').on('click', function(e) {
+			Caman('#canvas-image-after', function() {
+				this.revert(false);
+				this.rotate(90).render();
+			});
+		});
+
+		//Rotate Counter Clockwise 90 Processing
+		$('#rotate-ccw-90-btn').on('click', function(e) {
+			Caman('#canvas-image-after', function() {
+				this.revert(false);
+				this.rotate(-90).render();
+			});
+		});
+
+		//apply when there was a change
+		// 1. Brightness
+		// 2. Contrast
+		// 3. Blur
+		// 4. Sharpen
+		$('input[type=range]').change(applyFilters);
+
+		function applyFilters() {
+			var brightness = parseInt($('#brightness').val());
+			var contrast = parseInt($('#contrast').val());
+			var blur = parseInt($('#blur').val());
+			var sharpen = parseInt($('#sharpen').val());
+			Caman('#canvas-image-after', function() {
+				this.revert(false);
+				this.brightness(brightness).contrast(contrast).stackBlur(blur).sharpen(sharpen).render();
+				document.getElementById('value-contrast').innerHTML = contrast;
+				document.getElementById('value-brightness').innerHTML = brightness;
+				document.getElementById('value-blur').innerHTML = blur;
+				document.getElementById('value-sharpen').innerHTML = sharpen;
+			});
+		}
+	});
+
+	function download(canvas, filename) {
+		var e;
+		var lnk = document.createElement("a");
+
+		lnk.download = filename;
+
+		lnk.href = canvas.toDataURL("image/jpeg", 0.8);
+
+		if (document.createEvent) {
+			e = document.createEvent("MouseEvents");
+			e.initMouseEvent(
+				"click",
+				true,
+				true,
+				window,
+				0,
+				0,
+				0,
+				0,
+				0,
+				false,
+				false,
+				false,
+				false,
+				0,
+				null
+			);
+			lnk.dispatchEvent(e);
+		} else if (lnk.fireEvent) {
+			lnk.fireEvent("onclick");
+		}
+	}
+
+	function processImage(inImg) {
+		const width = inImg.width;
+		const height = inImg.height;
+		const src = new Uint32Array(inImg.data.buffer);
+		const isValueHistogram = $("#typeValue").prop('checked');
+
+		let histBrightness = (new Array(256)).fill(0);
+		let histR = (new Array(256)).fill(0);
+		let histG = (new Array(256)).fill(0);
+		let histB = (new Array(256)).fill(0);
+		for (let i = 0; i < src.length; i++) {
+			let r = src[i] & 0xFF;
+			let g = (src[i] >> 8) & 0xFF;
+			let b = (src[i] >> 16) & 0xFF;
+			histBrightness[r]++;
+			histBrightness[g]++;
+			histBrightness[b]++;
+			histR[r]++;
+			histG[g]++;
+			histB[b]++;
+		}
+
+		let maxBrightness = 0;
+		if (isValueHistogram) {
+			for (let i = 1; i < 256; i++) {
+				if (maxBrightness < histBrightness[i]) {
+					maxBrightness = histBrightness[i]
+				}
+			}
+		} else {
+			for (let i = 0; i < 256; i++) {
+				if (maxBrightness < histR[i]) {
+					maxBrightness = histR[i]
+				} else if (maxBrightness < histG[i]) {
+					maxBrightness = histG[i]
+				} else if (maxBrightness < histB[i]) {
+					maxBrightness = histB[i]
+				}
+			}
+		}
+
+		const canvas = document.getElementById('canvasHistogram');
+		const ctx = canvas.getContext('2d');
+		let guideHeight = 8;
+		let startY = (canvas.height - guideHeight);
+		let dx = canvas.width / 256;
+		let dy = startY / maxBrightness;
+		ctx.lineWidth = dx;
+		ctx.fillStyle = "#fff";
+		ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+		for (let i = 0; i < 256; i++) {
+			let x = i * dx;
+			if (isValueHistogram) {
+				// Value
+				ctx.strokeStyle = "#000000";
+				ctx.beginPath();
+				ctx.moveTo(x, startY);
+				ctx.lineTo(x, startY - histBrightness[i] * dy);
+				ctx.closePath();
+				ctx.stroke();
+			} else {
+				// Red
+				ctx.strokeStyle = "rgba(220,0,0,0.5)";
+				ctx.beginPath();
+				ctx.moveTo(x, startY);
+				ctx.lineTo(x, startY - histR[i] * dy);
+				ctx.closePath();
+				ctx.stroke();
+				// Green
+				ctx.strokeStyle = "rgba(0,210,0,0.5)";
+				ctx.beginPath();
+				ctx.moveTo(x, startY);
+				ctx.lineTo(x, startY - histG[i] * dy);
+				ctx.closePath();
+				ctx.stroke();
+				// Blue
+				ctx.strokeStyle = "rgba(0,0,255,0.5)";
+				ctx.beginPath();
+				ctx.moveTo(x, startY);
+				ctx.lineTo(x, startY - histB[i] * dy);
+				ctx.closePath();
+				ctx.stroke();
+			}
+			// Guide
+			ctx.strokeStyle = 'rgb(' + i + ', ' + i + ', ' + i + ')';
+			ctx.beginPath();
+			ctx.moveTo(x, startY);
+			ctx.lineTo(x, canvas.height);
+			ctx.closePath();
+			ctx.stroke();
+		}
+	}
+
+	function getImageData(el) {
+		const canvas = document.createElement('canvas');
+		const context = canvas.getContext('2d');
+		const img = document.getElementById(el);
+		canvas.width = img.width;
+		canvas.height = img.height;
+		context.drawImage(img, 0, 0);
+		return context.getImageData(0, 0, img.width, img.height);
+	}
+
+	document.getElementById('upload-file').addEventListener('change', function() {
+		var file = document.querySelector('#upload-file').files[0];
+		var reader = new FileReader();
+
+		if (file) {
+			fileName = file.name;
+			reader.readAsDataURL(file);
+		}
+
+		reader.addEventListener('load', function() {
+			img = new Image();
+			img.src = reader.result;
+			img.onload = update;
+		});
+
+		// if (this.files && this.files[0]) {
+		// 	var img = document.getElementById('canvas-image-after');
+		// 	img.src = URL.createObjectURL(this.files[0]);
+		// 	console.log(img.src);
+		// 	img.onload = update;
+		// }
+	});
+
+	$('input[name="rType"]').on('click change', update);
+
+	function update(e) {
+		processImage(getImageData('canvas-image-after'));
+	}
+
+	update();
+</script>
+
 </html>
